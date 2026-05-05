@@ -1,9 +1,10 @@
 from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from user.serializers.auth import LoginSerializer
@@ -57,8 +58,23 @@ def login(request: Request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def logout(request: Request):
-    pass
+    try:
+        refresh_token = request.data["refresh"]
+
+        if not refresh_token:
+            return Response(data={"error": "Refreshed Token required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+
+        return Response(data={"message": "Logged out successfully"}, status=status.HTTP_205_RESET_CONTENT)
+
+    except (TokenError, InvalidToken):
+        return Response(data={"error": "Invalid or Expired Refresh Token"}, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response(data={"error": "An Unexpected error occured"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def dashboard(request: Request, pk: int):
