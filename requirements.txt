@@ -1,0 +1,15 @@
+asgiref==3.11.1
+cffi==2.0.0
+cryptography==47.0.0
+Django==6.0.4
+django-stubs==6.0.3
+django-stubs-ext==6.0.3
+djangorestframework==3.17.1
+djangorestframework-stubs==3.16.9
+djangorestframework_simplejwt==5.5.1
+pycparser==3.0
+PyJWT==2.12.1
+rest-framework-simplejwt==0.0.2
+sqlparse==0.5.5
+types-PyYAML==6.0.12.20260408
+typing_extensions==4.15.0
