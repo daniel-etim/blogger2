@@ -38,7 +38,10 @@ def read_post(request: Request, pk):
 @api_view(["PUT", "PATCH"])
 @permission_classes([IsAuthenticated])
 def update_post(request: Request, pk:int):
-    post :Post = Post.objects.get(pk=pk)
+    try:
+        post :Post = Post.objects.get(pk=pk)
+    except Post.DoesNotExist:
+        return Response(data={"error": "Post Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
     if post.author != request.user:
         return Response(data={"error": "You're not authorized to edit this post"}, status=status.HTTP_401_UNAUTHORIZED)
