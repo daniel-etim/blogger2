@@ -1,6 +1,6 @@
 from django.urls import path
 
-from blog.views.blog import create_post, list_post, read_post, update_post
+from blog.views.blog import create_post, delete_post, list_post, read_post, update_post, delete_post
 
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path("create/", create_post, name="post_create"),
     path("read/<int:pk>/", read_post, name="post_read"),
     path("update/<int:pk>/", update_post, name="post_update"),
+    path("delete/<int:pk>/", delete_post, name="post_delete"),
 ]
