@@ -34,3 +34,18 @@ def read_post(request: Request, pk):
     serializer = PostSerializer(post)
 
     return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+@api_view(["PUT", "PATCH"])
+@permission_classes([IsAuthenticated])
+def update_post(request: Request, pk:int):
+    post :Post = Post.objects.get(pk=pk)
+
+    if post.author != request.user:
+        return Response(data={"error": "You're not authorized to edit this post"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    serializer = PostSerializer(post, data=request.data, partial=True)
+    serializer.is_valid(raise_exception=True)
+
+    serializer.save()
+
+    return Response(data={"message": "successfully updated", "data": serializer.data}, status=status.HTTP_205_RESET_CONTENT)
