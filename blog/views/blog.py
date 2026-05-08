@@ -29,7 +29,10 @@ def create_post(request: Request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def read_post(request: Request, pk):
-    post = Post.objects.get(pk=pk)
+    try:
+        post = Post.objects.get(pk=pk)
+    except Post.DoesNotExist:
+        return Response(data={"error": "Post Not Found"}, status=status.HTTP_404_NOT_FOUND)
     
     serializer = PostSerializer(post)
 
