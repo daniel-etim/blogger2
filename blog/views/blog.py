@@ -46,7 +46,7 @@ def update_post(request: Request, pk:int):
     except Post.DoesNotExist:
         return Response(data={"error": "Post Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
-    if post.author != request.user:
+    if post.author != request.user and not request.user.is_staff:
         return Response(data={"error": "You're not authorized to edit this post"}, status=status.HTTP_401_UNAUTHORIZED)
     
     serializer = PostSerializer(post, data=request.data, partial=True)
