@@ -65,7 +65,7 @@ def delete_post(request: Request, pk: int):
         return Response(data={"error": "Post Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
     if post.author != request.user:
-        return Response(data={"error": "You're not authorized to do this. Go call the owner!"}, status=status.HTTP_403_FORBIDDEN)
+        return Response(data={"error": "You're not authorized to do this"}, status=status.HTTP_403_FORBIDDEN)
     
     post.delete()
 
