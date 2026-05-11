@@ -1,3 +1,5 @@
+from turtle import title
+
 from django.utils.text import slugify
 from rest_framework import serializers
 
@@ -32,3 +34,29 @@ class PostSerializer(serializers.ModelSerializer):
         validated_data['slug'] = slug
 
         return super().create(validated_data)
+    
+    def update(self, instance, validated_data):
+
+        #  if a user updates slug we'll use the updated slug---.  if they dont, we use the initial slug, and save to db---
+        # if they delete slug enntirely, we'll generate a slug from the title---.
+        #  when they update slug and that slug is already in the database, we add a number to the slug. 
+
+        if validated_data.get('slug') is None:
+            return super().update(instance, validated_data)
+        
+        elif not validated_data.get('slug'):
+            title = validated_data.get('title', instance.title)
+            new_slug = slugify(title)
+        else:
+            new_slug = validated_data['slug']
+
+        slug = new_slug
+        counter = 2
+
+        while Post.objects.filter(slug=slug).exclude(pk=instance.pk).exists():
+            slug = f"{new_slug}-{counter}"
+            counter += 1
+
+        validated_data['slug'] = slug
+
+        return super().update(instance, validated_data)
