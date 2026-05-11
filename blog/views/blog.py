@@ -64,7 +64,7 @@ def delete_post(request: Request, pk: int):
     except  Post.DoesNotExist:
         return Response(data={"error": "Post Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
-    if post.author != request.user:
+    if post.author != request.user and not request.user.is_staff:
         return Response(data={"error": "You're not authorized to do this"}, status=status.HTTP_403_FORBIDDEN)
     
     post.delete()
