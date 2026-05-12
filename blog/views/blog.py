@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from blog.models.blog import Post
+from blog.models.blog import Comment, Post
 from blog.serializers.blog import CommentSerializer, PostSerializer
 
 
@@ -86,3 +86,19 @@ def create_comment(request: Request, pk: int):
     serializer.save(author=request.user, post=post)
 
     return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def delete_comment(request: Request, pk: int):
+    try:
+        comment = Comment.objects.get(pk=pk)
+    except Comment.DoesNotExist:
+        return Response(data={"error": "Post Not Found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if comment.author != request.user:
+        return Response(data={"error": "You're not authorized to do this"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    comment.delete()
+
+    return Response(data={"message": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
