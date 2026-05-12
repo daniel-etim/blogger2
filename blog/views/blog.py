@@ -74,7 +74,7 @@ def delete_post(request: Request, pk: int):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def comment_post(request: Request, pk: int):
+def create_comment(request: Request, pk: int):
     try:
         post = Post.objects.get(pk=pk)
     except Post.DoesNotExist:
