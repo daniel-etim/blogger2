@@ -3,7 +3,7 @@ from turtle import title
 from django.utils.text import slugify
 from rest_framework import serializers
 
-from blog.models.blog import Post
+from blog.models.blog import Comment, Post
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -60,3 +60,14 @@ class PostSerializer(serializers.ModelSerializer):
         validated_data['slug'] = slug
 
         return super().update(instance, validated_data)
+    
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.StringRelatedField()
+    post = serializers.StringRelatedField()
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+        read_only_fields = ["post", "author", "created_at"]

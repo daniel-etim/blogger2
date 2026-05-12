@@ -5,7 +5,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from blog.models.blog import Post
-from blog.serializers.blog import PostSerializer
+from blog.serializers.blog import CommentSerializer, PostSerializer
 
 
 @api_view(["GET"])
@@ -70,3 +70,19 @@ def delete_post(request: Request, pk: int):
     post.delete()
 
     return Response(data={"message": "Post Deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def comment_post(request: Request, pk: int):
+    try:
+        post = Post.objects.get(pk=pk)
+    except Post.DoesNotExist:
+        return Response(data={"error": "Post Not Found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = CommentSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    serializer.save(author=request.user, post=post)
+
+    return Response(data=serializer.data, status=status.HTTP_200_OK)
