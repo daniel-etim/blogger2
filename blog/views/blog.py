@@ -34,9 +34,12 @@ def read_post(request: Request, pk):
     except Post.DoesNotExist:
         return Response(data={"error": "Post Not Found"}, status=status.HTTP_404_NOT_FOUND)
     
-    serializer = PostSerializer(post)
+    comments = Comment.objects.filter(post_id=pk)
 
-    return Response(data=serializer.data, status=status.HTTP_200_OK)
+    serializer = PostSerializer(post)
+    comments_serializer = CommentSerializer(comments, many=True)
+
+    return Response(data={"post": serializer.data, "comments": comments_serializer.data}, status=status.HTTP_200_OK)
 
 @api_view(["PUT", "PATCH"])
 @permission_classes([IsAuthenticated])
