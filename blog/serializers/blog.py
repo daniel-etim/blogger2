@@ -71,3 +71,17 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
         read_only_fields = ["post", "author", "created_at"]
+
+class SearchSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    content = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    slug = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    date = serializers.DateTimeField(required=False)
+    author = serializers.IntegerField(required=False)
+    
+class SearchPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = "__all__"
+
+        read_only_fields = ["title", "content", "slug", "created_at", "updated_at", "author"]

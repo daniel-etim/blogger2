@@ -1,3 +1,5 @@
+from datetime import date
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -5,7 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from blog.models.blog import Comment, Post
-from blog.serializers.blog import CommentSerializer, PostSerializer
+from blog.serializers.blog import CommentSerializer, PostSerializer, SearchPostSerializer, SearchSerializer
 
 
 @api_view(["GET"])
@@ -105,3 +107,36 @@ def delete_comment(request: Request, pk: int):
     comment.delete()
 
     return Response(data={"message": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def search(request: Request):
+    search = SearchSerializer(data=request.data)
+    search.is_valid(raise_exception=True)
+
+    clean_data = search.validated_data
+
+    if not any(clean_data):
+        return Response(data={"error": "please provide at least one search parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
+    posts = Post.objects.all()
+
+    if clean_data.get("title"):
+        posts = posts.filter(title__icontains=clean_data["title"])
+    if clean_data.get("content"):
+        posts = posts.filter(content__icontains=clean_data["content"])
+    if clean_data.get("slug"):
+        posts = posts.filter(slug__icontains=clean_data["slug"])
+    if clean_data.get("date"):
+        posts = posts.filter(created_at__date=clean_data["date"].date())
+    if clean_data.get("author"):
+        posts = posts.filter(author_id=clean_data["author"])
+
+
+    if not posts.exists():
+        return Response(data={"search": "NO CONTENT"}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = SearchPostSerializer(posts, many=True)
+
+    return Response(data={"search": serializer.data}, status=status.HTTP_200_OK)
