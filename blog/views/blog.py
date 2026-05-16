@@ -1,5 +1,7 @@
 from datetime import date
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
@@ -16,7 +18,33 @@ def list_post(request: Request):
 
     serializer = PostSerializer(posts, many=True)
 
-    return Response(data=serializer.data, status=status.HTTP_200_OK)
+    page_number = request.query_params.get("page", 1)
+    page_size = 5
+
+    paginator = Paginator(posts, page_size)
+
+    try:
+        paginated_posts = paginator.page(page_number)
+    except PageNotAnInteger:
+        paginated_posts = paginator.page(1)
+    except EmptyPage:
+        paginated_posts = paginator.page(paginator.num_pages)
+
+    if not paginated_posts:
+        return Response(data={"search": "No content Found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = PostSerializer(paginated_posts, many=True)
+
+    response_data = {
+        "count": paginator.count,
+        "total_pages": paginator.num_pages,
+        "current_page": int(page_number),
+        "next_page": paginated_posts.has_next(),
+        "previous_page": paginated_posts.has_previous(),
+        "data": serializer.data
+    }
+
+    return Response(data=response_data, status=status.HTTP_200_OK)
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
