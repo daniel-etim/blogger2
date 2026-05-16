@@ -12,9 +12,9 @@ from blog.serializers.blog import CommentSerializer, PostReadSerializer, PostSer
 
 @api_view(["GET"])
 def list_post(request: Request):
-    blogs = Post.objects.all().order_by("-created_at")
+    posts = Post.objects.all().order_by("-created_at")
 
-    serializer = PostSerializer(blogs, many=True)
+    serializer = PostSerializer(posts, many=True)
 
     return Response(data=serializer.data, status=status.HTTP_200_OK)
 
