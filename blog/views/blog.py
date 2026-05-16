@@ -7,7 +7,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from blog.models.blog import Comment, Post
-from blog.serializers.blog import CommentSerializer, PostSerializer, SearchPostSerializer, SearchSerializer
+from blog.serializers.blog import CommentSerializer, PostReadSerializer, PostSerializer, SearchPostSerializer, SearchSerializer
 
 
 @api_view(["GET"])
@@ -38,7 +38,7 @@ def read_post(request: Request, pk):
     
     comments = Comment.objects.filter(post_id=pk)
 
-    serializer = PostSerializer(post)
+    serializer = PostReadSerializer(post)
     comments_serializer = CommentSerializer(comments, many=True)
 
     return Response(data={"post": serializer.data, "comments": comments_serializer.data}, status=status.HTTP_200_OK)

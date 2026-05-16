@@ -4,10 +4,16 @@ from django.utils.text import slugify
 from rest_framework import serializers
 
 from blog.models.blog import Comment, Post
+from user.models.user import User
 
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+        read_only_fields = ["first_name", "last_name", "email"]
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField()
+    author = AuthorSerializer(read_only=True)
     slug = serializers.SlugField(required=False, allow_blank=True)
     
     class Meta:
@@ -60,10 +66,18 @@ class PostSerializer(serializers.ModelSerializer):
         validated_data['slug'] = slug
 
         return super().update(instance, validated_data)
+
+class PostReadSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
     
+    class Meta:
+        model = Post
+        fields = "__all__"
+
+        read_only_fields = ['created_at', 'updated_at', 'author']
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField()
+    author = AuthorSerializer(read_only=True)
     post = serializers.StringRelatedField()
 
     class Meta:
@@ -80,6 +94,8 @@ class SearchSerializer(serializers.Serializer):
     author = serializers.IntegerField(required=False)
     
 class SearchPostSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+
     class Meta:
         model = Post
         fields = "__all__"
