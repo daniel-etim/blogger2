@@ -9,8 +9,8 @@ from user.models.user import User
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email"]
-        read_only_fields = ["first_name", "last_name", "email"]
+        fields = ["username", "email"]
+        read_only_fields = ["username", "email"]
 
 class PostSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(read_only=True)
