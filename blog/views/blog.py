@@ -31,7 +31,7 @@ def list_post(request: Request):
         paginated_posts = paginator.page(paginator.num_pages)
 
     if not paginated_posts:
-        return Response(data={"search": "No content Found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(data={"Posts": "No Posts yet"}, status=status.HTTP_404_NOT_FOUND)
     
     serializer = PostSerializer(paginated_posts, many=True)
 
