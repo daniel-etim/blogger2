@@ -10,6 +10,7 @@ from rest_framework.response import Response
 
 from blog.models.blog import Comment, Post
 from blog.serializers.blog import CommentSerializer, PostReadSerializer, PostSerializer, SearchPostSerializer, SearchSerializer
+from blogger.permissions import check_post_owner
 
 
 @api_view(["GET"])
@@ -97,7 +98,8 @@ def delete_post(request: Request, pk: int):
     except  Post.DoesNotExist:
         return Response(data={"error": "Post Not Found"}, status=status.HTTP_404_NOT_FOUND)
 
-    if post.author != request.user and not request.user.is_staff:
+    # catch errors early
+    if not check_post_owner(post, request.user):
         return Response(data={"error": "You're not authorized to do this"}, status=status.HTTP_403_FORBIDDEN)
     
     post.delete()
